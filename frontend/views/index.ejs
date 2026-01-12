@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= titulo %></title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+    <nav>
+        <div class="logo">Tienda de Juegos</div>
+        <div class="nav-actions">
+            <a href="/tienda">Catálogo</a>
+            <button class="btn-link" onclick="abrirCarrito()" id="contador-carrito"> Carrito   </button>
+            <button class="btn-link" onclick="abrirModal()">Configuración</button>
+            <button class="btn-danger-sm" onclick="cerrarSesion()">Cerrar Sesión</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="main-header">
+            <h1><%= mensaje %></h1>
+            <p>Explora los títulos más épicos de la temporada</p>
+        </header>
+
+        <div class="grid-juegos">
+            <% if (productos && productos.length > 0) { %>
+                <% productos.forEach(juego => { %>
+                    <div class="card">
+                        <img src="<%= juego.imagen_url || 'https://via.placeholder.com/250x200' %>" alt="<%= juego.nombre %>">
+                        <div class="card-content">
+                            <h3><%= juego.nombre %></h3>
+                            <p><%= juego.descripcion %></p>
+                            <span class="precio">$<%= juego.precio %></span>
+                            <button class="btn-primary" onclick="agregarAlCarrito('<%= juego.id_producto %>')">
+                                Añadir al carrito
+                            </button>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="no-products">
+                    <p>No hay juegos disponibles en la base de datos.</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+<div id="modalConfiguracion" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="cerrarModal()">&times;</span>
+        <h2>Mi Perfil</h2>
+        <p>Actualiza tu información personal:</p>
+        
+        <form id="form-editar">
+            <div class="form-group">
+                <label>Nombre Completo</label>
+                <input type="text" id="edit-nombre" placeholder="Tu nombre">
+            </div>
+            <div class="form-group">
+                <label>Dirección de Envío</label>
+                <input type="text" id="edit-direccion" placeholder="Tu dirección">
+            </div>
+            
+            <div class="modal-buttons">
+                <button type="submit" class="btn-primary">Guardar Cambios</button>
+                <button type="button" class="btn-danger-sm" onclick="cerrarModal()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modalCarrito" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <span class="close" onclick="cerrarCarrito()">&times;</span>
+        <h2 style="color: var(--azul-primario);">Tu Carrito </h2>
+        
+        <div id="lista-carrito">
+            <p style="color: var(--texto-tenue);">El carrito está vacío.</p>
+        </div>
+
+        <div id="total-carrito" style="margin-top: 20px; border-top: 1px solid var(--color-borde); padding-top: 15px; text-align: right;">
+            <h3 style="margin: 0;">Total: <span id="precio-total" style="color: #2ecc71;">$0.00</span></h3>
+        </div>
+
+        <div class="modal-buttons" style="flex-direction: row; justify-content: space-between; margin-top: 20px;">
+            <button class="btn-danger-sm" onclick="vaciarCarrito()">Vaciar</button>
+            <button class="btn-primary" style="width: auto;" onclick="procesarCompra()">Finalizar Compra</button>
+        </div>
+    </div>
+</div>
+    <script src="/js/tienda.js"></script>
+</body>
+</html>

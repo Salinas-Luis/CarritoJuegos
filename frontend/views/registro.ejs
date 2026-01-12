@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso - GameStore</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<div class="auth-container">
+    <div class="tabs">
+        <div id="tab-login" class="tab active" onclick="showForm('login')">Entrar</div>
+        <div id="tab-registro" class="tab" onclick="showForm('registro')">Registrarse</div>
+    </div>
+
+    <form id="form-login" action="/api/usuarios/login">
+        <h2>Bienvenido</h2>
+        <input type="email" name="email" placeholder="Correo Electrónico" required>
+        <input type="password" name="password" placeholder="Contraseña" required>
+        <button type="submit">Iniciar Sesión</button>
+    </form>
+
+    <form id="form-registro" class="hidden" action="/api/usuarios/registrar">
+        <h2>Crear Cuenta</h2>
+        <input type="text" name="nombre" placeholder="Nombre Completo" required>
+        <input type="email" name="email" placeholder="Correo Electrónico" required>
+        <input type="password" name="password" placeholder="Contraseña" required>
+        <input type="text" name="direccion" placeholder="Dirección de envío">
+        <button type="submit">Finalizar Registro</button>
+    </form>
+
+    <div id="mensaje-error" class="mensaje"></div>
+</div>
+
+<script src="/js/registro-login.js"></script>
+</body>
+</html>
