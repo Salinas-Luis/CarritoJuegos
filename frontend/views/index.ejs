@@ -23,19 +23,27 @@
             <h1><%= mensaje %></h1>
             <p>Explora los títulos más épicos de la temporada</p>
         </header>
-
+            <div class="filtros-container" style="display: flex; gap: 15px; margin-bottom: 20px; width: 300px;">
+                <input type="text" id="buscador" placeholder="Buscar juego..." onkeyup="filtrarCatalogo()" style="flex: 2;">
+                <select id="filtro-precio" onchange="filtrarCatalogo()" style="flex: 1; padding: 10px; border-radius: 8px; background: #252525; color: white; border: 1px solid #444;">
+                    <option value="todos">Todos los precios</option>
+                    <option value="gratis">Gratis ($0)</option>
+                    <option value="bajo">Menos de $30</option>
+                    <option value="medio">$30 - $60</option>
+                    <option value="alto">Más de $60</option>
+                </select>
+            </div>
         <div class="grid-juegos">
             <% if (productos && productos.length > 0) { %>
                 <% productos.forEach(juego => { %>
                     <div class="card">
-                        <img src="<%= juego.imagen_url || 'https://via.placeholder.com/250x200' %>" alt="<%= juego.nombre %>">
                         <div class="card-content">
                             <h3><%= juego.nombre %></h3>
                             <p><%= juego.descripcion %></p>
                             <span class="precio">$<%= juego.precio %></span>
-                            <button class="btn-primary" onclick="agregarAlCarrito('<%= juego.id_producto %>')">
-                                Añadir al carrito
-                            </button>
+                                <button class="btn-primary" onclick="agregarAlCarrito('<%= juego.id_producto %>', '<%= juego.nombre %>', '<%= juego.precio %>')">
+                                    Añadir al carrito
+                                </button>
                         </div>
                     </div>
                 <% }) %>
@@ -63,10 +71,10 @@
                 <input type="text" id="edit-direccion" placeholder="Tu dirección">
             </div>
             
-            <div class="modal-buttons">
-                <button type="submit" class="btn-primary">Guardar Cambios</button>
-                <button type="button" class="btn-danger-sm" onclick="cerrarModal()">Cancelar</button>
-            </div>
+        <div class="modal-buttons">
+            <button type="button" class="btn-primary" onclick="validarYEnviarPerfil()">Guardar Cambios</button>
+            <button type="button" class="btn-danger-sm" onclick="cerrarModal()">Cancelar</button>
+        </div>
         </form>
     </div>
 </div>

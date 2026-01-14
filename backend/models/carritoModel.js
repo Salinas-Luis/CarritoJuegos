@@ -1,49 +1,50 @@
 import db from '../config/db.js';
 
-const Producto = {
-    obtenerTodos: async () => {
-        console.log('MODELO: Obteniendo lista completa de juegos');
+const Carrito = {
+    agregar: async (id_usuario, id_producto, cantidad) => {
+        console.log(`MODELO: Insertando en carrito -> Usuario: ${id_usuario}, Producto: ${id_producto}`);
         try {
-            const consulta = 'SELECT * FROM producto';
-            const [filas] = await db.execute(consulta);
-            console.log(`Consulta exitosa: se encontraron ${filas.length} juegos.`);
-            return filas;
+            const consulta = `
+                INSERT INTO carrito (id_usuario, id_producto, cantidad) 
+                VALUES (?, ?, ?)
+                ON DUPLICATE KEY UPDATE cantidad = cantidad + VALUES(cantidad)
+            `;
+            const [resultado] = await db.execute(consulta, [id_usuario, id_producto, cantidad]);
+            return resultado;
         } catch (error) {
-            console.error('ERROR EN MODELO (obtenerTodos):', error.message);
+            console.error('ERROR EN MODELO CARRITO (agregar):', error.message);
             throw error;
         }
     },
 
-    obtenerPorId: async (id) => {
-        console.log(`MODELO: Buscando juego con ID: ${id}`);
+    obtenerPorUsuario: async (id_usuario) => {
+        console.log(`MODELO: Obteniendo carrito del usuario ${id_usuario}`);
         try {
-            const consulta = 'SELECT * FROM producto WHERE id_producto = ?';
-            const [filas] = await db.execute(consulta, [id]);
-            
-            if (filas.length > 0) {
-                console.log('Juego encontrado:', filas[0].nombre);
-            } else {
-                console.log('No se encontró ningún juego con ese ID.');
-            }
-            return filas[0];
+            const consulta = `
+                SELECT c.id_producto, p.nombre, p.precio, c.cantidad 
+                FROM carrito c
+                JOIN producto p ON c.id_producto = p.id_producto
+                WHERE c.id_usuario = ?
+            `;
+            const [filas] = await db.execute(consulta, [id_usuario]);
+            return filas;
         } catch (error) {
-            console.error('ERROR EN MODELO (obtenerPorId):', error.message);
+            console.error('ERROR EN MODELO CARRITO (obtenerPorUsuario):', error.message);
             throw error;
         }
     },
 
-    obtenerPorCategoria: async (categoria) => {
-        console.log(`MODELO: Filtrando por categoría: ${categoria}`);
+    vaciar: async (id_usuario) => {
+        console.log(`MODELO: Vaciando carrito del usuario ${id_usuario}`);
         try {
-            const consulta = 'SELECT * FROM producto WHERE descripcion LIKE ?';
-            const [filas] = await db.execute(consulta, [`%${categoria}%`]);
-            console.log(`Filtro aplicado: ${filas.length} resultados.`);
-            return filas;
+            const consulta = 'DELETE FROM carrito WHERE id_usuario = ?';
+            const [resultado] = await db.execute(consulta, [id_usuario]);
+            return resultado;
         } catch (error) {
-            console.error('ERROR EN MODELO (obtenerPorCategoria):', error.message);
+            console.error('ERROR EN MODELO CARRITO (vaciar):', error.message);
             throw error;
         }
     }
 };
 
-export default Producto;
+export default Carrito;

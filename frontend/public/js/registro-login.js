@@ -1,4 +1,5 @@
 
+
 function showForm(tipo) {
     const formLogin = document.getElementById('form-login');
     const formRegistro = document.getElementById('form-registro');
@@ -28,7 +29,20 @@ document.querySelectorAll('form').forEach(form => {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
         const mensajeDiv = document.getElementById('mensaje-error');
+        const regexLongitud = /^.{12,}$/;
+        let camposInvalidos = [];
 
+        for (let [campo, valor] of Object.entries(data)) {
+            if (!regexLongitud.test(valor)) {
+                camposInvalidos.push(campo);
+            }
+        }
+
+        if (camposInvalidos.length > 0) {
+            mensajeDiv.style.color = '#ffcc00'; 
+            mensajeDiv.textContent = `Los campos [${camposInvalidos.join(', ')}] deben tener al menos 12 caracteres.`;
+            return; 
+        }
         try {
             const response = await fetch(form.action, {
                 method: 'POST',
@@ -37,17 +51,18 @@ document.querySelectorAll('form').forEach(form => {
             });
 
             if (!response.ok) {
-                const errorTexto = await response.text(); 
-                console.error("Error del servidor:", response.status, errorTexto);
+                const errorData = await response.json().catch(() => null);
+                console.error("Error del servidor:", response.status, errorData);
                 mensajeDiv.style.color = '#ff4444';
-                mensajeDiv.textContent = `Error ${response.status}: Revisa que la ruta '${form.action}' sea correcta en tu servidor.`;
+                mensajeDiv.textContent = (errorData && errorData.mensaje) 
+                    ? errorData.mensaje 
+                    : `Error ${response.status}`;
                 return;
             }
 
             const resultado = await response.json();
 
             if (resultado.usuario) {
-                console.log("Guardando datos en localStorage:", resultado.usuario);
                 localStorage.setItem('id_usuario', resultado.usuario.id_usuario);
                 localStorage.setItem('nombre_usuario', resultado.usuario.nombre);
             }

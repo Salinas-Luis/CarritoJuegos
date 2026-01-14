@@ -7,7 +7,7 @@ dotenv.config();
 const db = mysql.createPool({ 
     host: process.env.DB_HOST || 'localhost',
     user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '01011981',
+    password: process.env.DB_PASSWORD || 'Luis2008',
     database: process.env.DB_NAME || 'tienda_api',
         /*
     CREATE DATABASE tienda_api;

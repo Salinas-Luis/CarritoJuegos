@@ -2,57 +2,73 @@ import Carrito from '../models/carritoModel.js';
 
 const controladorCarrito = {
     agregar: async (req, res) => {
-        console.log('DEBUG: INTENTO DE AGREGAR AL CARRITO');
-        const { id_usuario, id_producto, cantidad } = req.body;
+        console.log('DEBUG: AGREGANDO AL CARRITO');
+        const id_usuario = parseInt(req.body.id_usuario);
+        const id_producto = parseInt(req.body.id_producto);
+        const cantidad = parseInt(req.body.cantidad) || 1;
 
         try {
-            if (!id_usuario || !id_producto || !cantidad) {
-                console.log('VALIDACIÓN: Faltan IDs o cantidad.');
-                return res.status(400).json({ mensaje: 'Datos incompletos para el carrito.' });
+            if (isNaN(id_usuario) || isNaN(id_producto)) {
+                console.log('VALIDACIÓN FALLIDA: IDs no válidos o incompletos.');
+                return res.status(400).json({ 
+                    exito: false, 
+                    mensaje: 'ID de usuario o producto no válido.' 
+                });
             }
 
-            console.log(`Usuario ${id_usuario} quiere ${cantidad} unidades del juego ${id_producto}`);
+            console.log(`Usuario ${id_usuario} -> Producto ${id_producto} (Cant: ${cantidad})`);
+            
             await Carrito.agregar(id_usuario, id_producto, cantidad);
 
-            console.log('ÉXITO: Producto gestionado en el carrito.');
-            res.json({ exito: true, mensaje: 'Producto añadido correctamente.' });
+            console.log('ÉXITO: Registro insertado en la tabla carrito.');
+            res.json({ 
+                exito: true, 
+                mensaje: 'Juego guardado en tu carrito (BD).' 
+            });
         } catch (error) {
-            console.error('ERROR EN AGREGAR AL CARRITO:', error.message);
-            res.status(500).json({ mensaje: 'Error al añadir el juego al carrito.' });
+            console.error('ERROR EN CONTROLADOR CARRITO:', error.message);
+            res.status(500).json({ 
+                exito: false, 
+                mensaje: 'Error al conectar con la base de datos.' 
+            });
         }
     },
-
+        
     verCarrito: async (req, res) => {
-        const { id_usuario } = req.params;
-        console.log(`DEBUG: CARGANDO CARRITO DEL USUARIO ${id_usuario}`);
+        const id_usuario_param = req.params.id_usuario; 
+        console.log(`--- DEBUG: CARGANDO CARRITO DEL USUARIO ${id_usuario_param} ---`);
 
         try {
-            const items = await Carrito.obtenerPorUsuario(id_usuario);
-            
-            if (items.length === 0) {
-                console.log('El carrito de este usuario está vacío.');
-                return res.json({ mensaje: 'Tu carrito está vacío', productos: [] });
+            if (!id_usuario_param) {
+                return res.status(400).json({ exito: false, mensaje: 'ID de usuario no proporcionado' });
             }
+            const items = await Carrito.obtenerPorUsuario(id_usuario_param);
+            
+            console.log(`ÉXITO: Se encontraron ${items.length} productos para el usuario ${id_usuario_param}`);
 
-            console.log(`ÉXITO: Se encontraron ${items.length} productos en el carrito.`);
-            res.json(items);
+            res.json({ 
+                exito: true, 
+                productos: items 
+            });
+
         } catch (error) {
             console.error('ERROR EN VER CARRITO:', error.message);
-            res.status(500).json({ mensaje: 'Error al cargar el carrito.' });
+            res.status(500).json({ exito: false, mensaje: 'Error al cargar el carrito de la base de datos.' });
         }
     },
 
     eliminarDelCarrito: async (req, res) => {
         const { id_usuario } = req.body;
-        console.log(`--- DEBUG: VACIANDO CARRITO DEL USUARIO ${id_usuario} ---`);
+        console.log(`EBUG: VACIANDO CARRITO (USUARIO ${id_usuario})`);
 
         try {
+            if (!id_usuario) return res.status(400).json({ mensaje: 'ID de usuario requerido.' });
+
             await Carrito.vaciar(id_usuario);
-            console.log('Carrito limpiado con éxito.');
-            res.json({ exito: true, mensaje: 'Carrito vaciado.' });
+            res.json({ exito: true, mensaje: 'Base de datos: Carrito vaciado.' });
         } catch (error) {
-            console.error('ERROR EN ELIMINAR DEL CARRITO:', error.message);
-            res.status(500).json({ mensaje: 'Error al vaciar el carrito.' });
+            console.error('ERROR AL VACIAR CARRITO:', error.message);
+            res.status(500).json({ mensaje: 'No se pudo limpiar el carrito en la BD.' });
         }
     }
 };

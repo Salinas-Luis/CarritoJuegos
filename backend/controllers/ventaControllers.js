@@ -3,28 +3,33 @@ import Carrito from '../models/carritoModel.js';
 
 const controladorVenta = {
     finalizarCompra: async (req, res) => {
-        console.log('DEBUG: INICIO DE PROCESAMIENTO DE VENTA');
-        const { id_usuario } = req.body;
+        console.log('DEBUG: PROCESANDO FINALIZACIÓN DE COMPRA');
+        const id_usuario = parseInt(req.body.id_usuario);
 
         try {
+            if (isNaN(id_usuario)) {
+                return res.status(400).json({ exito: false, mensaje: 'ID de usuario no válido.' });
+            }
+
             console.log(`Buscando productos en el carrito del usuario ${id_usuario}...`);
             const productosCarrito = await Carrito.obtenerPorUsuario(id_usuario);
 
-            if (productosCarrito.length === 0) {
-                console.log('VALIDACIÓN: El carrito está vacío, no se puede vender.');
-                return res.status(400).json({ mensaje: 'No hay productos en el carrito para realizar la compra.' });
+            if (!productosCarrito || productosCarrito.length === 0) {
+                console.log('VALIDACIÓN: Carrito vacío.');
+                return res.status(400).json({ 
+                    exito: false, 
+                    mensaje: 'No hay productos en el carrito para realizar la compra.' 
+                });
             }
 
             let totalVenta = 0;
             productosCarrito.forEach(item => {
                 totalVenta += item.precio * item.cantidad;
             });
-            console.log(`Total calculado: $${totalVenta}`);
+            console.log(`Total calculado: $${totalVenta.toFixed(2)}`);
 
             const idVentaGenerada = await Venta.crearVenta(id_usuario, totalVenta);
-            console.log(`Cabecera de venta creada. ID Ticket: ${idVentaGenerada}`);
-
-            console.log('Registrando detalles de los productos...');
+            console.log('Registrando detalles en la base de datos...');
             for (const item of productosCarrito) {
                 await Venta.registrarDetalle(
                     idVentaGenerada, 
@@ -32,36 +37,35 @@ const controladorVenta = {
                     item.cantidad, 
                     item.precio
                 );
-                console.log(`Producto: ${item.nombre} registrado.`);
             }
 
-            console.log('Vaciando el carrito del usuario...');
             await Carrito.vaciar(id_usuario);
 
-            console.log('VENTA COMPLETADA CON ÉXITO');
+            console.log('--- VENTA COMPLETADA CON ÉXITO ---');
+
             res.status(201).json({ 
                 exito: true, 
-                mensaje: 'Compra realizada con éxito. ¡Disfruta tus juegos!',
+                mensaje: '¡Compra exitosa! Se envió la factura al correo electrónico, los códigos de los juegos llegarán en unos días.',
                 id_venta: idVentaGenerada 
             });
 
         } catch (error) {
             console.error('ERROR EN PROCESO DE VENTA:', error.message);
-            res.status(500).json({ mensaje: 'Error al procesar la compra.' });
+            res.status(500).json({ 
+                exito: false, 
+                mensaje: 'Hubo un error al procesar tu compra. Por favor, intenta de nuevo.' 
+            });
         }
     },
 
     obtenerHistorial: async (req, res) => {
         const { id_usuario } = req.params;
-        console.log(`DEBUG: Consultando historial de compras del usuario ${id_usuario}`);
-        
         try {
             const historial = await Venta.obtenerHistorial(id_usuario);
-            console.log(`Historial cargado: ${historial.length} ventas encontradas.`);
-            res.json(historial);
+            res.json({ exito: true, historial });
         } catch (error) {
             console.error('ERROR AL OBTENER HISTORIAL:', error.message);
-            res.status(500).json({ mensaje: 'Error al obtener el historial.' });
+            res.status(500).json({ exito: false, mensaje: 'Error al obtener el historial.' });
         }
     }
 };

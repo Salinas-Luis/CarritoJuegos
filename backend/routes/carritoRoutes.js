@@ -3,12 +3,12 @@ import controladorCarrito from '../controllers/carritoControllers.js';
 
 const router = express.Router();
 
-console.log('RUTAS: Cargando rutas del carrito');
+console.log('RUTAS: Cargando rutas del carrito configuradas');
 
 router.post('/agregar', controladorCarrito.agregar);
 
 router.get('/usuario/:id_usuario', controladorCarrito.verCarrito);
 
-router.delete('/vaciar', controladorCarrito.eliminarDelCarrito);
+router.post('/vaciar', controladorCarrito.eliminarDelCarrito);
 
 export default router;
