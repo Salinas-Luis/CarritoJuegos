@@ -1,9 +1,122 @@
 
-document.addEventListener('DOMContentLoaded', () => {
-    console.log("CARGA INICIAL: Recuperando carrito de la BD");
-    cargarCarritoDesdeBD();
-});
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log("CARGA INICIAL: Recuperando carrito de la BD");
+        setTimeout(() => {
+                cargarCarritoDesdeBD();
+                verificarPermisosAdmin();
+            }, 100);
+    });
 
+    function verificarPermisosAdmin() {
+        const rol = localStorage.getItem('rol_usuario');
+        console.log("Verificando rol para interfaz:", rol);
+
+        if (rol === 'admin') {
+            const navActions = document.querySelector('.nav-actions');
+            if (navActions && !document.getElementById('btn-nuevo-juego')) {
+                const btnAdmin = document.createElement('button');
+                btnAdmin.id = 'btn-nuevo-juego';
+                btnAdmin.className = 'btn-primary';
+                btnAdmin.style.background = '#e67e22'; 
+                btnAdmin.innerText = '+ Agregar Juego';
+                btnAdmin.onclick = () => abrirModalNuevoJuego();
+                navActions.prepend(btnAdmin);
+            }
+
+            const tarjetas = document.querySelectorAll('.card');
+            tarjetas.forEach(tarjeta => {
+                const idProducto = tarjeta.getAttribute('data-id');
+                const contenedorAdmin = tarjeta.querySelector('.admin-controls-container');
+
+                if (contenedorAdmin) {
+                    contenedorAdmin.innerHTML = `
+                        <div style="display: flex; gap: 5px; margin-bottom: 10px; border-top: 1px solid #333; padding-top: 10px;">
+                            <button class="btn-warning-sm" style="flex: 1;" onclick="prepararEdicion('${idProducto}')"> Editar</button>
+                            <button class="btn-danger-sm" style="flex: 1;" onclick="eliminarJuego('${idProducto}')"> Borrar</button>
+                        </div>
+                    `;
+                }
+            });
+        }
+    }
+
+    function abrirModalNuevoJuego() {
+        document.getElementById('modalTitulo').innerText = "Nuevo Juego";
+        document.getElementById('form-juego').reset();
+        document.getElementById('juego-id').value = ""; 
+        document.getElementById('modalJuego').style.display = 'flex';
+    }
+
+    function cerrarModalJuego() {
+        document.getElementById('modalJuego').style.display = 'none';
+    }
+
+    async function guardarJuego() {
+        try {
+            const elId = document.getElementById('juego-id');
+            const elNombre = document.getElementById('juego-nombre');
+            const elPrecio = document.getElementById('juego-precio');
+            const elGenero = document.getElementById('juego-genero');
+            const elDesc = document.getElementById('juego-descripcion');
+
+            if (!elNombre || !elPrecio || !elGenero || !elDesc) {
+                console.error("Faltan elementos en el DOM");
+                return;
+            }
+
+            const id = elId.value;
+            const nombre = elNombre.value.trim();
+            const precio = elPrecio.value;
+            const genero = elGenero.value;
+            const descripcion = elDesc.value.trim();
+
+            if (nombre.length < 3) return alert("El nombre debe tener al menos 3 letras.");
+            if (precio === "" || parseFloat(precio) < 0) return alert("Ingresa un precio válido.");
+            if (descripcion.length < 10) return alert("La descripción debe ser más detallada.");
+
+            const datos = { 
+                nombre, 
+                precio: parseFloat(precio), 
+                genero, 
+                descripcion 
+            };
+
+            const url = id ? `/api/productos/${id}` : '/api/productos';
+            const metodo = id ? 'PUT' : 'POST';
+
+            const res = await fetch(url, {
+                method: metodo,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datos)
+            });
+
+            if (res.ok) {
+                alert("¡Cambios guardados con éxito!");
+                location.reload();
+            } else {
+                const err = await res.json();
+                alert("Error: " + err.mensaje);
+            }
+
+        } catch (error) {
+            console.error("Error en la petición:", error);
+            alert("Hubo un fallo al conectar con el servidor.");
+        }
+    }
+
+async function eliminarJuego(id) {
+    if (!confirm("¿Seguro que quieres borrar este juego?")) return;
+
+    try {
+        const res = await fetch(`/api/productos/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+            alert("Juego eliminado.");
+            location.reload();
+        }
+    } catch (error) {
+        console.error("Error al eliminar:", error);
+    }
+}
 
 async function cargarCarritoDesdeBD() {
     const id_usuario = localStorage.getItem('id_usuario');
@@ -41,7 +154,7 @@ function cerrarSesion() {
 
 function abrirModal() {
     const modal = document.getElementById('modalConfiguracion');
-    modal.style.display = 'block';
+    modal.style.display = 'flex';
 
     const nombreGuardado = localStorage.getItem('nombre_usuario');
     if (nombreGuardado) {
@@ -52,11 +165,6 @@ function abrirModal() {
 function cerrarModal() {
     document.getElementById('modalConfiguracion').style.display = 'none';
 }
-
-
-
-
-
 
 let carrito = [];
 
@@ -104,6 +212,7 @@ async function agregarAlCarrito(id_producto, nombre, precio) {
         console.log("7. Resultado JSON recibido del servidor:", resultado);
 
         if (response.ok && resultado.exito) {
+            alert("Producto agregado al carrito correctamente")
             carrito.push({ id_producto, nombre, precio: parseFloat(precio) });
             actualizarInterfazCarrito();
             console.log("ÉXITO: Producto sincronizado con DB.");
@@ -207,6 +316,15 @@ async function validarYEnviarPerfil() {
         inputNombre.focus();
         return; 
     }
+    if (!direccion) {
+        alert("La dirección de envío es obligatoria para poder procesar tus pedidos.");
+        return; 
+    }
+
+    if (direccion.length < 10) {
+        alert("Por favor, ingresa una dirección más completa (Calle, Número, Ciudad).");
+        return;
+    }
 
     try {
         const respuesta = await fetch(`http://localhost:3000/api/usuarios/${idUsuario}`, {
@@ -243,32 +361,44 @@ function filtrarJuegos() {
 function filtrarCatalogo() {
     const textoBusqueda = document.getElementById('buscador').value.toLowerCase();
     const rangoPrecio = document.getElementById('filtro-precio').value;
+    const generoSeleccionado = document.getElementById('filtro-genero').value;
+    
     const juegos = document.querySelectorAll('.card');
 
     juegos.forEach(juego => {
         const titulo = juego.querySelector('h3').innerText.toLowerCase();
-        const precioTexto = juego.querySelector('.precio').innerText.replace('$', '');
-        const precio = parseFloat(precioTexto);
+        const generoJuego = juego.getAttribute('data-genero');
+        const precio = parseFloat(juego.querySelector('.precio').innerText.replace(/[^0-9.]/g, ''));
 
         const coincideNombre = titulo.includes(textoBusqueda);
 
-        let coincidePrecio = false;
-        if (rangoPrecio === 'todos') {
-            coincidePrecio = true;
-        } else if (rangoPrecio === 'gratis') {
-            coincidePrecio = (precio === 0);
-        } else if (rangoPrecio === 'bajo') {
-            coincidePrecio = (precio > 0 && precio < 30);
-        } else if (rangoPrecio === 'medio') {
-            coincidePrecio = (precio >= 30 && precio <= 60);
-        } else if (rangoPrecio === 'alto') {
-            coincidePrecio = (precio > 60);
-        }
+        const coincideGenero = (generoSeleccionado === 'todos' || generoJuego === generoSeleccionado);
 
-        if (coincideNombre && coincidePrecio) {
+        let coincidePrecio = false;
+        if (rangoPrecio === 'todos') coincidePrecio = true;
+        else if (rangoPrecio === 'gratis') coincidePrecio = (precio === 0);
+        else if (rangoPrecio === 'bajo') coincidePrecio = (precio > 0 && precio < 400);
+        else if (rangoPrecio === 'medio') coincidePrecio = (precio >= 400 && precio <= 1000);
+        else if (rangoPrecio === 'alto') coincidePrecio = (precio > 1000);
+
+        if (coincideNombre && coincideGenero && coincidePrecio) {
             juego.style.display = "flex";
         } else {
             juego.style.display = "none";
         }
     });
+}
+
+function prepararEdicion(id) {
+    const card = document.querySelector(`.card[data-id="${id}"]`);
+    if (!card) return;
+
+    document.getElementById('juego-id').value = id;
+    document.getElementById('juego-nombre').value = card.querySelector('h3').innerText;
+    document.getElementById('juego-precio').value = card.querySelector('.precio').innerText.replace(/[^0-9.]/g, '');
+    document.getElementById('juego-genero').value = card.getAttribute('data-genero');
+    document.getElementById('juego-descripcion').value = card.querySelector('p').innerText;
+
+    document.getElementById('modalTitulo').innerText = "Editar Juego";
+    document.getElementById('modalJuego').style.display = 'flex';
 }

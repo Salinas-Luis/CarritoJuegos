@@ -65,6 +65,7 @@ document.querySelectorAll('form').forEach(form => {
             if (resultado.usuario) {
                 localStorage.setItem('id_usuario', resultado.usuario.id_usuario);
                 localStorage.setItem('nombre_usuario', resultado.usuario.nombre);
+                localStorage.setItem('rol_usuario', resultado.usuario.rol);
             }
 
             alert(resultado.mensaje || '¡Operación exitosa!');

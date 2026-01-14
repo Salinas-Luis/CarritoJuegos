@@ -1,4 +1,4 @@
-
+/* ESTILOS GENERALES */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #121212;
@@ -9,6 +9,7 @@ body {
     min-height: 100vh;
 }
 
+/* NAVEGACIÓN */
 nav {
     background: #1f1f1f;
     padding: 1rem 2rem;
@@ -24,15 +25,184 @@ nav .logo {
     color: #007bff;
 }
 
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
 nav a {
     color: white;
     text-decoration: none;
-    margin-left: 20px;
     transition: color 0.3s;
 }
 
 nav a:hover {
     color: #007bff;
+}
+
+.grid-juegos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    padding: 20px;
+}
+
+.card {
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+}
+
+.card-content {
+    padding: 20px;
+}
+
+.card-content h3 {
+    margin: 0 0 10px 0;
+}
+
+.precio {
+    display: block;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #2ecc71;
+    margin-bottom: 15px;
+}
+
+.modal {
+    display: none;
+    position: fixed; 
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
+    
+    /* Centrado */
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #1e1e1e;
+    padding: 30px;
+    border: 1px solid #444;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 450px;
+    margin: auto; 
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+}
+header{
+    margin: 10px;
+}
+.close {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #888;
+}
+
+#form-juego .form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+#form-juego label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #eee;
+}
+
+#form-juego input, 
+#form-juego select, 
+#form-juego textarea {
+    width: 100% !important;
+    padding: 10px;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    color: white;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+button {
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    width: 100%;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+}
+
+.btn-warning-sm {
+    background: #f1c40f;
+    color: #000;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.btn-danger-sm {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+.btn-link:hover {
+    color: #007bff;
+}
+
+.genero-tag {
+    display: inline-block;
+    background: rgba(52, 152, 219, 0.15);
+    color: #3498db;
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 8px;
 }
 
 .auth-container {
@@ -42,9 +212,8 @@ nav a:hover {
     box-shadow: 0 10px 30px rgba(0,0,0,0.7);
     width: 100%;
     max-width: 400px;
-    margin: auto; 
+    margin: auto;
 }
-
 .tabs {
     display: flex;
     margin-bottom: 25px;
@@ -67,6 +236,7 @@ nav a:hover {
 }
 
 form {
+
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -110,83 +280,3 @@ button:hover {
 .hidden {
     display: none;
 }
-
-.mensaje {
-    margin-top: 20px;
-    text-align: center;
-    color: #ff4444;
-}
-
-.modal {
-    display: none; 
-    position: fixed;
-    z-index: 2000;
-    left: 0; top: 0; width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.8); 
-    backdrop-filter: blur(5px);
-}
-
-.modal-content {
-    background-color: var(--card-bg);
-    margin: 10% auto;
-    padding: 30px;
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    width: 90%;
-    max-width: 400px;
-}
-.close {
-    float: right;
-    font-size: 28px;
-    cursor: pointer;
-    color: var(--text-muted);
-}
-
-.grid-juegos {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 25px;
-    padding: 20px 0;
-}
-
-.card {
-    background: #1e1e1e;
-    border: 1px solid #333;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-}
-
-.card-content {
-    padding: 20px;
-}
-
-.card-content h3 {
-    margin: 0 0 10px 0;
-    color: #fff;
-}
-
-.card-content p {
-    font-size: 0.9em;
-    color: #aaa;
-    margin-bottom: 15px;
-    height: 60px; 
-    overflow: hidden;
-}
-
-.precio {
-    display: block;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: #2ecc71;
-    margin-bottom: 15px;
-}
-
