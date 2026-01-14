@@ -2,13 +2,13 @@ import Usuario from '../models/userModel.js';
 
 const controladorUsuario = {
     registrar: async (req, res) => {
-        console.log('--- DEBUG: INICIO DE PROCESO DE REGISTRO ---');
+        console.log('DEBUG: INICIO DE PROCESO DE REGISTRO');
         console.log('Datos que llegaron al servidor:', req.body);
 
         try {
             const { nombre, email, password, direccion } = req.body;
 
-            if (!nombre || !email || !password) {
+            if (!nombre || !email || !password ) {
                 console.log('VALIDACIÓN: Faltan datos (nombre, email o password).');
                 return res.status(400).json({ mensaje: 'Todos los campos marcados son obligatorios.' });
             }
@@ -31,37 +31,42 @@ const controladorUsuario = {
         }
     },
 
-    iniciarSesion: async (req, res) => {
-        console.log('DEBUG: INTENTO DE LOGIN');
-        const { email, password } = req.body;
+iniciarSesion: async (req, res) => {
+    console.log('DEBUG: INTENTO DE LOGIN');
+    const { email, password } = req.body;
 
-        try {
-            console.log(`Buscando al usuario: ${email}`);
-            const usuario = await Usuario.buscarPorEmail(email);
+    try {
+        console.log(`Buscando al usuario: ${email}`);
+        const usuario = await Usuario.buscarPorEmail(email);
 
-            if (!usuario) {
-                console.log('Usuario no encontrado en la base de datos.');
-                return res.status(404).json({ mensaje: 'El correo no existe.' });
-            }
-
-            console.log('Comparando contraseñas directamente...');
-            if (usuario.password !== password) {
-                console.log('Contraseña incorrecta.');
-                return res.status(401).json({ mensaje: 'Contraseña incorrecta.' });
-            }
-
-            console.log('LOGIN EXITOSO para:', usuario.nombre);
-            res.json({ 
-                exito: true, 
-                mensaje: `¡Hola de nuevo, ${usuario.nombre}!`,
-                usuario: { id_usuario: usuario.id_usuario, nombre: usuario.nombre, email: usuario.email }
-            });
-
-        } catch (error) {
-            console.error('ERROR EN LOGIN:', error.message);
-            res.status(500).json({ mensaje: 'Error al iniciar sesión.' });
+        if (!usuario) {
+            console.log('Usuario no encontrado en la base de datos.');
+            return res.status(404).json({ mensaje: 'El correo no existe.' });
         }
-    },
+
+        console.log('Comparando contraseñas directamente...');
+        if (usuario.password !== password) {
+            console.log('Contraseña incorrecta.');
+            return res.status(401).json({ mensaje: 'Contraseña incorrecta.' });
+        }
+
+        console.log('LOGIN EXITOSO para:', usuario.nombre, '| ROL:', usuario.rol);
+        res.json({ 
+            exito: true, 
+            mensaje: `¡Hola de nuevo, ${usuario.nombre}!`,
+            usuario: { 
+                id_usuario: usuario.id_usuario, 
+                nombre: usuario.nombre, 
+                email: usuario.email,
+                rol: usuario.rol 
+            }
+        });
+
+    } catch (error) {
+        console.error('ERROR EN LOGIN:', error.message);
+        res.status(500).json({ mensaje: 'Error al iniciar sesión.' });
+    }
+},
 
     actualizarPerfil: async (req, res) => {
         const { id } = req.params;

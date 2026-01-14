@@ -11,4 +11,9 @@ router.get('/detalle/:id', controladorProducto.verDetalle);
 
 router.get('/categoria/:categoria', controladorProducto.filtrarPorCategoria);
 
+router.post('/', controladorProducto.crearJuego); 
+
+router.put('/:id', controladorProducto.editarJuego);
+     
+router.delete('/:id', controladorProducto.eliminarJuego);
 export default router;

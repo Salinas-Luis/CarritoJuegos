@@ -40,7 +40,7 @@ const Usuario = {
         console.log(`MODELO: Consultando datos del ID: ${id}`);
         
         try {
-            const consulta = 'SELECT id_usuario, nombre, email, direccion, fecha_registro FROM usuario WHERE id_usuario = ?';
+            const consulta = 'SELECT id_usuario, nombre, email, direccion, rol, fecha_registro FROM usuario WHERE id_usuario = ?';
             const [filas] = await db.execute(consulta, [id]);
             return filas[0];
         } catch (error) {
