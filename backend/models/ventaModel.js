@@ -1,6 +1,5 @@
 import db from '../config/db.js';
 
-// models/ventaModel.js
 const Venta = {
     crearVenta: async (id_usuario, total) => {
         try {

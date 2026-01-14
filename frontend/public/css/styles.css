@@ -1,4 +1,4 @@
-/* ESTILOS GENERALES */
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #121212;
@@ -9,7 +9,6 @@ body {
     min-height: 100vh;
 }
 
-/* NAVEGACIÓN */
 nav {
     background: #1f1f1f;
     padding: 1rem 2rem;
